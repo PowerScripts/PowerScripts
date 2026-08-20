@@ -45,7 +45,7 @@ function Show-MainMenu {
     Write-Host "     T    EEEE     T    R   R  IIIII  SSSS    " -ForegroundColor Red
     Write-Host "  ============================================" -ForegroundColor Cyan
     Write-Host ""
-    Write-Host "          HIGHEST SCORE : $HighestScore" -ForegroundColor Gold
+    Write-Host "          HIGHEST SCORE : $HighestScore" -ForegroundColor Yellow
     Write-Host ""
     Write-Host "             [1] PLAY GAME" -ForegroundColor Green
     Write-Host "             [Q] QUIT" -ForegroundColor DarkGray
