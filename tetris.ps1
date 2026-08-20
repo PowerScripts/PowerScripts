@@ -3,12 +3,11 @@ $H.WindowTitle = "PowerShell Tetris"
 $H.BackgroundColor = "Black"
 $H.ForegroundColor = "White"
 Clear-Host
+[Console]::CursorVisible = $false
 
-# Dimensions du plateau
 $W = 10
 $H_board = 20
 
-# Tetrominos (I, J, L, O, S, T, Z)
 $shapes = @(
     @(@(0,1),(1,1),(2,1),(3,1)), # I
     @(@(0,0),(0,1),(1,1),(2,1)), # J
@@ -20,7 +19,6 @@ $shapes = @(
 )
 $colors = @("Cyan", "Blue", "DarkYellow", "Yellow", "Green", "Magenta", "Red")
 
-# Initialisation de la grille
 $grid = New-Object 'object[,]' $H_board, $W
 for ($r=0; $r -lt $H_board; $r++) {
     for ($c=0; $c -lt $W; $c++) { $grid[$r,$c] = $null }
@@ -32,14 +30,13 @@ $linesCleared = 0
 function Draw-Board {
     [Console]::SetCursorPosition(0,0)
     Write-Host "=== POWERSHELL TETRIS ===" -ForegroundColor Yellow
-    Write-Host "Score: $score | Lignes: $linesCleared" -ForegroundColor Cyan
+    Write-Host "Score: $score | Lignes: $linesCleared    " -ForegroundColor Cyan
     Write-Host "+--------------------+" -ForegroundColor Gray
 
     for ($r=0; $r -lt $H_board; $r++) {
         Write-Host "|" -NoNewline -ForegroundColor Gray
         for ($c=0; $c -lt $W; $c++) {
             $drawn = $false
-            # Dessin de la pièce courante
             for ($i=0; $i -lt 4; $i++) {
                 $px = $pX + $curShape[$i][0]
                 $py = $pY + $curShape[$i][1]
@@ -49,7 +46,6 @@ function Draw-Board {
                     break
                 }
             }
-            # Dessin des blocs fixes
             if (-not $drawn) {
                 if ($grid[$r,$c] -ne $null) {
                     Write-Host "[]" -NoNewline -ForegroundColor $grid[$r,$c]
@@ -61,8 +57,8 @@ function Draw-Board {
         Write-Host "|" -ForegroundColor Gray
     }
     Write-Host "+--------------------+" -ForegroundColor Gray
-    Write-Host "[<-/->] Deplacer  [v] Descendre" -ForegroundColor DarkGray
-    Write-Host "[Espace] Tourner   [Q] Quitter" -ForegroundColor DarkGray
+    Write-Host "[Fleches] Bouger  [Espace] Tourner" -ForegroundColor DarkGray
+    Write-Host "[Q] Quitter                      " -ForegroundColor DarkGray
 }
 
 function Test-Collision ($nx, $ny, $shape) {
@@ -93,7 +89,6 @@ function Rotate-Piece {
         $ry = $curShape[$i][0]
         $newShape += ,@($rx, $ry)
     }
-    # Normalisation
     $minX = ($newShape | ForEach-Object { $_[0] } | Measure-Object -Minimum).Minimum
     $minY = ($newShape | ForEach-Object { $_[1] } | Measure-Object -Minimum).Minimum
     for ($i=0; $i -lt 4; $i++) {
@@ -111,7 +106,6 @@ function Lock-Piece {
         $y = $pY + $curShape[$i][1]
         if ($y -ge 0) { $grid[$y,$x] = $curColor }
     }
-    # Verification des lignes completes
     for ($r=$H_board-1; $r -ge 0; $r--) {
         $full = $true
         for ($c=0; $c -lt $W; $c++) {
@@ -126,13 +120,12 @@ function Lock-Piece {
                 }
             }
             for ($c=0; $c -lt $W; $c++) { $grid[0,$c] = $null }
-            $r++ # Re-verifier la meme ligne
+            $r++
         }
     }
     New-Piece
 }
 
-# Lancement
 $gameOver = $false
 New-Piece
 Clear-Host
@@ -140,19 +133,18 @@ Clear-Host
 $lastTick = [Environment]::TickCount
 
 while (-not $gameOver) {
-    if ($host.ui.RawUI.KeyAvailable) {
-        $key = $host.ui.RawUI.ReadKey("NoEcho,IncludeKeyDown")
-        switch ($key.VirtualKeyCode) {
-            37 { if (-not (Test-Collision ($pX - 1) $pY $curShape)) { $pX-- } } # Gauche
-            39 { if (-not (Test-Collision ($pX + 1) $pY $curShape)) { $pX++ } } # Droite
-            40 { if (-not (Test-Collision $pX ($pY + 1) $curShape)) { $pY++ } } # Bas
-            32 { Rotate-Piece }                                                # Espace (Rotation)
-            81 { $gameOver = $true }                                            # Q (Quitter)
+    if ([Console]::KeyAvailable) {
+        $key = [Console]::ReadKey($true)
+        switch ($key.Key) {
+            "LeftArrow"  { if (-not (Test-Collision ($pX - 1) $pY $curShape)) { $pX-- } }
+            "RightArrow" { if (-not (Test-Collision ($pX + 1) $pY $curShape)) { $pX++ } }
+            "DownArrow"  { if (-not (Test-Collision $pX ($pY + 1) $curShape)) { $pY++ } }
+            "Spacebar"   { Rotate-Piece }
+            "Q"          { $gameOver = $true }
         }
     }
 
-    # Gravite
-    if (([Environment]::TickCount - $lastTick) -gt 400) {
+    if (([Environment]::TickCount - $lastTick) -gt 350) {
         if (-not (Test-Collision $pX ($pY + 1) $curShape)) {
             $pY++
         } else {
@@ -162,9 +154,10 @@ while (-not $gameOver) {
     }
 
     Draw-Board
-    Start-Sleep -Milliseconds 20
+    Start-Sleep -Milliseconds 30
 }
 
+[Console]::CursorVisible = $true
 Clear-Host
 Write-Host "   GAME OVER!" -ForegroundColor Red
 Write-Host "   Score final: $score" -ForegroundColor Yellow
