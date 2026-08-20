@@ -1,7 +1,7 @@
 # ⚡PowerScripts
 PowerScripts is a collection of open-source scripts including games, pranks and more!
-## Games
-### 1. PowerBlock 🎮
+## Games 🎮
+### 1. PowerBlock
 A fun block game that runs entirely in PowerShell CLI.
 ```powershell
 irm https://raw.githubusercontent.com/wifi-man/PowerScripts/refs/heads/main/scripts/games/powerblock.ps1 | iex
