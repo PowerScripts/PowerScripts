@@ -7,7 +7,7 @@ $Width = 10
 $Height = 20
 $HighScoreFile = "$PSScriptRoot\tetris_highscore.txt"
 
-# Chargement du meilleur score s'il existe
+# Chargement du meilleur score
 $HighestScore = 0
 if (Test-Path $HighScoreFile) {
     $HighestScore = [int](Get-Content $HighScoreFile -ErrorAction SilentlyContinue)
@@ -32,6 +32,40 @@ $Colors = @(
     [ConsoleColor]::Blue,
     [ConsoleColor]::DarkYellow
 )
+
+# --- MUSIQUE EN ARRIÈRE-PLAN ---
+function Start-TetrisMusic {
+    Stop-TetrisMusic
+    $script:MusicJob = Start-Job -ScriptBlock {
+        # Fréquences des notes (Hz)
+        $E5=659; $B4=494; $C5=523; $D5=587; $A4=440; $G4=392; $F4=349; $E4=330; $GS4=415
+        
+        $notes = @(
+            @($E5,300), @($B4,150), @($C5,150), @($D5,300), @($C5,150), @($B4,150),
+            @($A4,300), @($A4,150), @($C5,150), @($E5,300), @($D5,150), @($C5,150),
+            @($B4,450), @($C5,150), @($D5,300), @($E5,300),
+            @($C5,300), @($A4,300), @($A4,600),
+            @($D5,300), @($F4,150), @($A4,150), @($C5,300), @($B4,150), @($A4,150),
+            @($G4,300), @($C5,150), @($E4,150), @($E5,300), @($D5,150), @($C5,150),
+            @($B4,300), @($B4,150), @($C5,150), @($D5,300), @($E5,300),
+            @($C5,300), @($A4,300), @($A4,600)
+        )
+
+        while ($true) {
+            foreach ($n in $notes) {
+                [Console]::Beep($n[0], $n[1])
+                Start-Sleep -Milliseconds 20
+            }
+        }
+    }
+}
+
+function Stop-TetrisMusic {
+    if ($script:MusicJob) {
+        Stop-Job $script:MusicJob -ErrorAction SilentlyContinue
+        Remove-Job $script:MusicJob -ErrorAction SilentlyContinue
+    }
+}
 
 # --- MENU D'ACCUEIL ---
 function Show-MainMenu {
@@ -231,6 +265,9 @@ function Draw-Game ($currentPiece, $nextPiece) {
 # --- DÉROULEMENT DU JEU ---
 if (-not (Show-MainMenu)) { exit }
 
+# Lancement de la musique rétro
+Start-TetrisMusic
+
 Clear-Host
 $Board = New-Object 'int[,]' $Height, $Width
 $Score = 0
@@ -242,56 +279,61 @@ $CurrentPiece = New-Piece
 $NextPiece    = New-Piece
 $lastDrop     = [DateTime]::Now
 
-while (-not $GameOver) {
-    $dropIntervalMs = [math]::Max(80, 400 - (($Level - 1) * 35))
+try {
+    while (-not $GameOver) {
+        $dropIntervalMs = [math]::Max(80, 400 - (($Level - 1) * 35))
 
-    if ([Console]::KeyAvailable) {
-        $key = [Console]::ReadKey($true)
-        switch ($key.Key) {
-            'LeftArrow' {
-                if (-not (Test-Collision $CurrentPiece -1 0)) { $CurrentPiece.X-- }
-            }
-            'RightArrow' {
-                if (-not (Test-Collision $CurrentPiece 1 0)) { $CurrentPiece.X++ }
-            }
-            'DownArrow' {
-                if (-not (Test-Collision $CurrentPiece 0 1)) { $CurrentPiece.Y++ }
-            }
-            'UpArrow' {
-                $rotated = Rotate-Shape $CurrentPiece.Shape
-                if (-not (Test-Collision $CurrentPiece 0 0 $rotated)) {
-                    $CurrentPiece.Shape = $rotated
+        if ([Console]::KeyAvailable) {
+            $key = [Console]::ReadKey($true)
+            switch ($key.Key) {
+                'LeftArrow' {
+                    if (-not (Test-Collision $CurrentPiece -1 0)) { $CurrentPiece.X-- }
                 }
+                'RightArrow' {
+                    if (-not (Test-Collision $CurrentPiece 1 0)) { $CurrentPiece.X++ }
+                }
+                'DownArrow' {
+                    if (-not (Test-Collision $CurrentPiece 0 1)) { $CurrentPiece.Y++ }
+                }
+                'UpArrow' {
+                    $rotated = Rotate-Shape $CurrentPiece.Shape
+                    if (-not (Test-Collision $CurrentPiece 0 0 $rotated)) {
+                        $CurrentPiece.Shape = $rotated
+                    }
+                }
+                'Spacebar' {
+                    $CurrentPiece.Y = Get-GhostY $CurrentPiece
+                    Lock-Piece $CurrentPiece
+                    Clear-Lines
+                    $CurrentPiece = $NextPiece
+                    $NextPiece    = New-Piece
+                    if (Test-Collision $CurrentPiece 0 0) { $GameOver = $true }
+                }
+                'Q' { $GameOver = $true }
             }
-            'Spacebar' {
-                $CurrentPiece.Y = Get-GhostY $CurrentPiece
+        }
+
+        if (([DateTime]::Now - $lastDrop).TotalMilliseconds -gt $dropIntervalMs) {
+            if (-not (Test-Collision $CurrentPiece 0 1)) {
+                $CurrentPiece.Y++
+            } else {
                 Lock-Piece $CurrentPiece
                 Clear-Lines
                 $CurrentPiece = $NextPiece
                 $NextPiece    = New-Piece
-                if (Test-Collision $CurrentPiece 0 0) { $GameOver = $true }
+                if (Test-Collision $CurrentPiece 0 0) {
+                    $GameOver = $true
+                }
             }
-            'Q' { $GameOver = $true }
+            $lastDrop = [DateTime]::Now
         }
-    }
 
-    if (([DateTime]::Now - $lastDrop).TotalMilliseconds -gt $dropIntervalMs) {
-        if (-not (Test-Collision $CurrentPiece 0 1)) {
-            $CurrentPiece.Y++
-        } else {
-            Lock-Piece $CurrentPiece
-            Clear-Lines
-            $CurrentPiece = $NextPiece
-            $NextPiece    = New-Piece
-            if (Test-Collision $CurrentPiece 0 0) {
-                $GameOver = $true
-            }
-        }
-        $lastDrop = [DateTime]::Now
+        Draw-Game $CurrentPiece $NextPiece
+        Start-Sleep -Milliseconds 25
     }
-
-    Draw-Game $CurrentPiece $NextPiece
-    Start-Sleep -Milliseconds 25
+} finally {
+    # Couper la musique à la fin du jeu
+    Stop-TetrisMusic
 }
 
 [Console]::SetCursorPosition(0, $Height + 9)
