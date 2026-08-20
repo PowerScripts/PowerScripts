@@ -5,7 +5,7 @@ $Host.UI.RawUI.CursorSize = 0
 
 $Width = 10
 $Height = 20
-$HighScoreFile = "$PSScriptRoot\tetris_highscore.txt"
+$HighScoreFile = "$PSScriptRoot\powerblock_highscore.txt"
 
 # Chargement du meilleur score
 $HighestScore = 0
@@ -33,34 +33,39 @@ $Colors = @(
     [ConsoleColor]::DarkYellow
 )
 
-# --- MUSIQUE EN ARRIÈRE-PLAN ---
-function Start-TetrisMusic {
-    Stop-TetrisMusic
+# --- MUSIQUE EN ARRIÈRE-PLAN (ORIGINAL POWERBLOCK THEME) ---
+function Start-PowerBlockMusic {
+    Stop-PowerBlockMusic
     $script:MusicJob = Start-Job -ScriptBlock {
         # Fréquences des notes (Hz)
-        $E5=659; $B4=494; $C5=523; $D5=587; $A4=440; $G4=392; $F4=349; $E4=330; $GS4=415
+        $C4=261; $D4=294; $E4=330; $F4=349; $G4=392; $A4=440; $B4=494
+        $C5=523; $D5=587; $E5=659; $F5=698; $G5=784; $A5=880
         
+        # Mélodie dynamique originale (Note, DuréeMs)
         $notes = @(
-            @($E5,300), @($B4,150), @($C5,150), @($D5,300), @($C5,150), @($B4,150),
-            @($A4,300), @($A4,150), @($C5,150), @($E5,300), @($D5,150), @($C5,150),
-            @($B4,450), @($C5,150), @($D5,300), @($E5,300),
-            @($C5,300), @($A4,300), @($A4,600),
-            @($D5,300), @($F4,150), @($A4,150), @($C5,300), @($B4,150), @($A4,150),
-            @($G4,300), @($C5,150), @($E4,150), @($E5,300), @($D5,150), @($C5,150),
-            @($B4,300), @($B4,150), @($C5,150), @($D5,300), @($E5,300),
-            @($C5,300), @($A4,300), @($A4,600)
+            # Partie A
+            @($E5,200), @($B4,100), @($C5,100), @($D5,200), @($E5,100), @($C5,100),
+            @($A4,200), @($G4,100), @($A4,100), @($C5,200), @($E5,200),
+            @($D5,200), @($C5,100), @($B4,100), @($C5,200), @($D5,200),
+            @($E5,300), @($C5,100), @($A4,400),
+            
+            # Partie B
+            @($G5,200), @($E5,100), @($F5,100), @($G5,200), @($A5,200),
+            @($F5,200), @($D5,100), @($E5,100), @($F5,200), @($G5,200),
+            @($E5,200), @($C5,100), @($D5,100), @($E5,200), @($F5,100), @($E5,100),
+            @($D5,200), @($B4,200), @($C5,400)
         )
 
         while ($true) {
             foreach ($n in $notes) {
                 [Console]::Beep($n[0], $n[1])
-                Start-Sleep -Milliseconds 20
+                Start-Sleep -Milliseconds 15
             }
         }
     }
 }
 
-function Stop-TetrisMusic {
+function Stop-PowerBlockMusic {
     if ($script:MusicJob) {
         Stop-Job $script:MusicJob -ErrorAction SilentlyContinue
         Remove-Job $script:MusicJob -ErrorAction SilentlyContinue
@@ -72,11 +77,17 @@ function Show-MainMenu {
     Clear-Host
     Write-Host ""
     Write-Host "  ============================================" -ForegroundColor Cyan
-    Write-Host "   TTTTT  EEEE   TTTTT  RRRR   IIIII  SSSS    " -ForegroundColor Cyan
-    Write-Host "     T    E        T    R   R    I    S       " -ForegroundColor Yellow
-    Write-Host "     T    EEE      T    RRRR     I    SSS     " -ForegroundColor Green
-    Write-Host "     T    E        T    R  R     I       S    " -ForegroundColor Magenta
-    Write-Host "     T    EEEE     T    R   R  IIIII  SSSS    " -ForegroundColor Red
+    Write-Host "   PPPP   EEEEE  WW   WW  EEEEE  RRRR   " -ForegroundColor Cyan
+    Write-Host "   P   P  E      WW   WW  E      R   R  " -ForegroundColor Cyan
+    Write-Host "   PPPP   EEE    WW W WW  EEE    RRRR   " -ForegroundColor Yellow
+    Write-Host "   P      E      WWWWWWW  E      R  R   " -ForegroundColor Yellow
+    Write-Host "   P      EEEEE   W   W   EEEEE  R   R  " -ForegroundColor Green
+    Write-Host "  --------------------------------------------" -ForegroundColor DarkGray
+    Write-Host "   BBBB   L      OOOO   CCC   K   K     " -ForegroundColor Green
+    Write-Host "   B   B  L     O    O C   C  K  K      " -ForegroundColor Magenta
+    Write-Host "   BBBB   L     O    O C      KK        " -ForegroundColor Magenta
+    Write-Host "   B   B  L     O    O C   C  K  K      " -ForegroundColor Red
+    Write-Host "   BBBB   LLLLL  OOOO   CCC   K   K     " -ForegroundColor Red
     Write-Host "  ============================================" -ForegroundColor Cyan
     Write-Host ""
     Write-Host "          HIGHEST SCORE : $HighestScore" -ForegroundColor Yellow
@@ -192,7 +203,7 @@ function Get-GhostY ($piece) {
 
 function Draw-Game ($currentPiece, $nextPiece) {
     [Console]::SetCursorPosition(0, 0)
-    Write-Host "================ TETRIS POWERSHELL ================" -ForegroundColor Cyan
+    Write-Host "================ POWERBLOCK ================" -ForegroundColor Cyan
     Write-Host ("Score : {0,-7} Best : {1,-7} Niveau : {2}" -f $Score, $HighestScore, $Level) -ForegroundColor Yellow
     Write-Host ""
 
@@ -265,8 +276,7 @@ function Draw-Game ($currentPiece, $nextPiece) {
 # --- DÉROULEMENT DU JEU ---
 if (-not (Show-MainMenu)) { exit }
 
-# Lancement de la musique rétro
-Start-TetrisMusic
+Start-PowerBlockMusic
 
 Clear-Host
 $Board = New-Object 'int[,]' $Height, $Width
@@ -332,8 +342,7 @@ try {
         Start-Sleep -Milliseconds 25
     }
 } finally {
-    # Couper la musique à la fin du jeu
-    Stop-TetrisMusic
+    Stop-PowerBlockMusic
 }
 
 [Console]::SetCursorPosition(0, $Height + 9)
