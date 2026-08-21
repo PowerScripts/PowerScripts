@@ -44,37 +44,59 @@ function Start-PowerBlockMusic {
         $C4=261; $D4=294; $E4=330; $F4=349; $G4=392; $A4=440; $B4=494
         $C5=523; $D5=587; $E5=659; $F5=698; $G5=784; $A5=880
         
-        # Mélodie dynamique originale (Note, DuréeMs)
+        # Mélodie dynamique originale sous forme d'objets explicites
         $notes = @(
             # Partie A
-            @($E5,200), @($B4,100), @($C5,100), @($D5,200), @($E5,100), @($C5,100),
-            @($A4,200), @($G4,100), @($A4,100), @($C5,200), @($E5,200),
-            @($D5,200), @($C5,100), @($B4,100), @($C5,200), @($D5,200),
-            @($E5,300), @($C5,100), @($A4,400),
+            [PSCustomObject]@{ Freq = $E5; Duration = 200 },
+            [PSCustomObject]@{ Freq = $B4; Duration = 100 },
+            [PSCustomObject]@{ Freq = $C5; Duration = 100 },
+            [PSCustomObject]@{ Freq = $D5; Duration = 200 },
+            [PSCustomObject]@{ Freq = $E5; Duration = 100 },
+            [PSCustomObject]@{ Freq = $C5; Duration = 100 },
+            [PSCustomObject]@{ Freq = $A4; Duration = 200 },
+            [PSCustomObject]@{ Freq = $G4; Duration = 100 },
+            [PSCustomObject]@{ Freq = $A4; Duration = 100 },
+            [PSCustomObject]@{ Freq = $C5; Duration = 200 },
+            [PSCustomObject]@{ Freq = $E5; Duration = 200 },
+            [PSCustomObject]@{ Freq = $D5; Duration = 200 },
+            [PSCustomObject]@{ Freq = $C5; Duration = 100 },
+            [PSCustomObject]@{ Freq = $B4; Duration = 100 },
+            [PSCustomObject]@{ Freq = $C5; Duration = 200 },
+            [PSCustomObject]@{ Freq = $D5; Duration = 200 },
+            [PSCustomObject]@{ Freq = $E5; Duration = 300 },
+            [PSCustomObject]@{ Freq = $C5; Duration = 100 },
+            [PSCustomObject]@{ Freq = $A4; Duration = 400 },
             
             # Partie B
-            @($G5,200), @($E5,100), @($F5,100), @($G5,200), @($A5,200),
-            @($F5,200), @($D5,100), @($E5,100), @($F5,200), @($G5,200),
-            @($E5,200), @($C5,100), @($D5,100), @($E5,200), @($F5,100), @($E5,100),
-            @($D5,200), @($B4,200), @($C5,400)
+            [PSCustomObject]@{ Freq = $G5; Duration = 200 },
+            [PSCustomObject]@{ Freq = $E5; Duration = 100 },
+            [PSCustomObject]@{ Freq = $F5; Duration = 100 },
+            [PSCustomObject]@{ Freq = $G5; Duration = 200 },
+            [PSCustomObject]@{ Freq = $A5; Duration = 200 },
+            [PSCustomObject]@{ Freq = $F5; Duration = 200 },
+            [PSCustomObject]@{ Freq = $D5; Duration = 100 },
+            [PSCustomObject]@{ Freq = $E5; Duration = 100 },
+            [PSCustomObject]@{ Freq = $F5; Duration = 200 },
+            [PSCustomObject]@{ Freq = $G5; Duration = 200 },
+            [PSCustomObject]@{ Freq = $E5; Duration = 200 },
+            [PSCustomObject]@{ Freq = $C5; Duration = 100 },
+            [PSCustomObject]@{ Freq = $D5; Duration = 100 },
+            [PSCustomObject]@{ Freq = $E5; Duration = 200 },
+            [PSCustomObject]@{ Freq = $F5; Duration = 100 },
+            [PSCustomObject]@{ Freq = $E5; Duration = 100 },
+            [PSCustomObject]@{ Freq = $D5; Duration = 200 },
+            [PSCustomObject]@{ Freq = $B4; Duration = 200 },
+            [PSCustomObject]@{ Freq = $C5; Duration = 400 }
         )
 
         while ($true) {
             foreach ($n in $notes) {
-                [Console]::Beep($n[0], $n[1])
+                [Console]::Beep($n.Freq, $n.Duration)
                 Start-Sleep -Milliseconds 15
             }
         }
     }
 }
-
-function Stop-PowerBlockMusic {
-    if ($script:MusicJob) {
-        Stop-Job $script:MusicJob -ErrorAction SilentlyContinue
-        Remove-Job $script:MusicJob -ErrorAction SilentlyContinue
-    }
-}
-
 # --- MENU D'ACCUEIL ---
 function Show-MainMenu {
     Clear-Host
