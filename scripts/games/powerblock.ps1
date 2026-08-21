@@ -169,17 +169,18 @@ function Clear-Lines {
     for ($r = $Height - 1; $r -ge 0; $r--) {
         $full = $true
         for ($c = 0; $c -lt $Width; $c++) {
-            if ($Board[$r, $c] -eq 0) { $full = $false; break }
+            if ([int]$Board[$r, $c] -eq 0) { $full = $false; break }
         }
         if ($full) {
             $linesCleared++
             for ($downR = $r; $downR -gt 0; $downR--) {
+                $prevR = [int]$downR - 1
                 for ($c = 0; $c -lt $Width; $c++) {
-                    $Board[$downR, $c] = $Board[$downR - 1, $c]
+                    $Board[$downR, $c] = [int]$Board[$prevR, $c]
                 }
             }
             for ($c = 0; $c -lt $Width; $c++) { $Board[0, $c] = 0 }
-            $r++
+            $r++ # Re-vérifier la ligne qui vient de descendre
         }
     }
     if ($linesCleared -gt 0) {
