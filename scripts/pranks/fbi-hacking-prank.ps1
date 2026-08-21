@@ -55,7 +55,7 @@ Start-Sleep -Seconds 1
 
 # Pop-up de 3 fenêtres d'Injection Bleues
 1..3 | ForEach-Object {
-    Start-Process powershell -ArgumentList '-NoExit -Command "Write-Host ''[+] DELTA EXECUTOR DLL HOOK ATTACHED'' -ForegroundColor Cyan; while($true){ Write-Host ''[KERNEL_MEM_DUMP] DUMPING SYSTEM RAM SECTORS...'' -ForegroundColor Yellow; Start-Sleep -Milliseconds 100 }"'
+    Start-Process powershell -ArgumentList '-NoExit -Command "Write-Host ''[+] FBI DLL HOOK ATTACHED'' -ForegroundColor Cyan; while($true){ Write-Host ''[KERNEL_MEM_DUMP] DUMPING SYSTEM RAM SECTORS...'' -ForegroundColor Yellow; Start-Sleep -Milliseconds 100 }"'
     [console]::beep(800, 100)
     Start-Sleep -Milliseconds 200
 }
