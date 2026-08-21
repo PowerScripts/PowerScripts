@@ -208,7 +208,7 @@ function Get-GhostY ($piece) {
 function Draw-Game ($currentPiece, $nextPiece) {
     [Console]::SetCursorPosition(0, 0)
     Write-Host "================ POWERBLOCK ================" -ForegroundColor Cyan
-    Write-Host ("Score : {0,-7} Best : {1,-7} Niveau : {2}" -f $Score, $HighestScore, $Level) -ForegroundColor Yellow
+    Write-Host ("Score : {0,-7} Best : {1,-7} Level : {2}" -f $Score, $HighestScore, $Level) -ForegroundColor Yellow
     Write-Host ""
 
     $ghostY = Get-GhostY $currentPiece
@@ -273,8 +273,8 @@ function Draw-Game ($currentPiece, $nextPiece) {
     
     Write-Host "+$('-' * ($Width * 2))+" -ForegroundColor Gray
     Write-Host "`nCommandes :" -ForegroundColor White
-    Write-Host "  [Fleches] Deplacer / Tourner   [Espace] Drop Instant" -ForegroundColor DarkGray
-    Write-Host "  [Q] Quitter" -ForegroundColor DarkGray
+    Write-Host "  [Arrows] Move / Turn   [Space Bar] Instant Drop" -ForegroundColor DarkGray
+    Write-Host "  [Q] Quit" -ForegroundColor DarkGray
 }
 
 # --- DÉROULEMENT DU JEU ---
@@ -351,6 +351,6 @@ try {
 
 [Console]::SetCursorPosition(0, $Height + 9)
 Write-Host "`n==========================================" -ForegroundColor Red
-Write-Host "     GAME OVER - Score Final : $Score" -ForegroundColor Red
+Write-Host "     GAME OVER - Final Score : $Score" -ForegroundColor Red
 Write-Host "     HIGHEST SCORE         : $HighestScore" -ForegroundColor Yellow
 Write-Host "==========================================`n" -ForegroundColor Red
