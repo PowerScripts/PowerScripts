@@ -13,6 +13,12 @@ A fake simulation of FBI Hacking with sound and visual effects.
 irm https://raw.githubusercontent.com/PowerScripts/PowerScripts/refs/heads/main/scripts/pranks/fbi-hacking-prank.ps1 | iex
 ```
 ---
+### 2. Enter The Matrix
+This script simulates the falling code effect from the Matrix movie, displaying characters in a console window.
+```powershell
+irm https://raw.githubusercontent.com/PowerScripts/PowerScripts/refs/heads/main/scripts/pranks/enter-the-matrix.ps1 | iex
+```
+---
 
 ## ⚙️ Prerequisites
 
