@@ -4,13 +4,13 @@ PowerScripts is a collection of open-source scripts including games, pranks and 
 ### 1. PowerBlock
 A fun block game that runs entirely in PowerShell CLI.
 ```powershell
-irm https://raw.githubusercontent.com/wifi-man/PowerScripts/refs/heads/main/scripts/games/powerblock.ps1 | iex
+irm https://raw.githubusercontent.com/PowerScripts/PowerScripts/refs/heads/main/scripts/games/powerblock.ps1 | iex
 ```
 ## Pranks 🤣
 ### 1. FBI Hacking Prank
 A fake simulation of FBI Hacking with sound and visual effects.
 ```powershell
-irm https://raw.githubusercontent.com/wifi-man/PowerScripts/refs/heads/main/scripts/pranks/fbi-hacking-prank.ps1 | iex
+irm https://raw.githubusercontent.com/PowerScripts/PowerScripts/refs/heads/main/scripts/pranks/fbi-hacking-prank.ps1 | iex
 ```
 ---
 
