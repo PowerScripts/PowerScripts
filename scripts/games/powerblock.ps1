@@ -5,8 +5,11 @@ $Host.UI.RawUI.CursorSize = 0
 
 $Width = 10
 $Height = 20
-$HighScoreFile = "$PSScriptRoot\powerblock_highscore.txt"
-
+if ($PSScriptRoot) {
+    $HighScoreFile = Join-Path -Path $PSScriptRoot -ChildPath "powerblock_highscore.txt"
+} else {
+    $HighScoreFile = Join-Path -Path $env:USERPROFILE -ChildPath "powerblock_highscore.txt"
+}
 # Chargement du meilleur score
 $HighestScore = 0
 if (Test-Path $HighScoreFile) {
